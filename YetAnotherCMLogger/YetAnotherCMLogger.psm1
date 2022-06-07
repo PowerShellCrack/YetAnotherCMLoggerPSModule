@@ -100,8 +100,14 @@ Function Set-YaCMLogFileName {
        Sets a log file path and name for Write-YaCMLogEntry to use
        Sets a global variable: $Global:LogFilePath
 
-    .PARAMETER Appendix
+    .PARAMETER ParentPath
         Defaults to the $env:Windir\Logs
+
+    .PARAMETER CallerName
+        Overwrites the script name as caller. Useful when Intune generates file using a random caller file name.
+
+    .PARAMETER Appendix
+        Defaults to the (Get-Date -Format 'yyyy-MM-dd_Thh-mm-ss-tt')
 
     .PARAMETER Passthru
         Output new log path. This DOES NOT update Write-YaCMLogEntry OutputLogFile location
@@ -113,22 +119,37 @@ Function Set-YaCMLogFileName {
         Set-YaCMLogFileName -ParentPath c:\Logs
 
     .EXAMPLE
+        Set-YaCMLogFileName -ParentPath c:\Windows\Logs -CallerName 'MyPoshScript' -Appendix ''
+
+    .EXAMPLE
         Set-YaCMLogFileName -ParentPath c:\Logs -Appendix ''
 
     .EXAMPLE
         Set-YaCMLogFileName -Passthru
     #>
     Param(
-        [Parameter(Mandatory=$false,Position=1)]
-        $ParentPath = "$env:Windir\Logs",
-        [Parameter(Mandatory=$false,Position=2)]
-        $Appendix = (Get-Date -Format 'yyyy-MM-dd_Thh-mm-ss-tt'),
-        $Passthru
+        [Parameter(Mandatory=$false)]
+        [string]$ParentPath = "$env:Windir\Logs",
+
+        [Parameter(Mandatory=$false)]
+        [string]$CallerName,
+
+        [Parameter(Mandatory=$false)]
+        [string]$Appendix = (Get-Date -Format 'yyyy-MM-dd_Thh-mm-ss-tt'),
+
+        [switch]$Passthru
     )
-    
-    # Attempt to get path from PScommandpath (only works when called within script)
-    $scriptPath = Try{Split-Path $MyInvocation.PSCommandPath -Leaf}Catch{Get-ScriptPath}
-    [string]$scriptName = [IO.Path]::GetFileNameWithoutExtension($scriptPath)
+
+    #Overwrite name with specified caller name
+    If($CallerName){
+        [string]$scriptName = $CallerName
+    }
+    Else{
+        # Attempt to get path from PScommandpath (only works when called within script)
+        $scriptPath = Try{Split-Path $MyInvocation.PSCommandPath -Leaf}Catch{Get-ScriptPath}
+        [string]$scriptName = [IO.Path]::GetFileNameWithoutExtension($scriptPath)
+    }
+
     #tes path of parent location
     If(Test-Path $ParentPath)
     {
