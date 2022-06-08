@@ -25,9 +25,8 @@ Import-Module YetAnotherCMLogger
 ```powershell
 #build global log fullpath
 $Global:LogFilePath = "$env:Windir\Logs\Mylogfile_$(Get-Date -Format 'yyyy-MM-dd').log"
-#or set path by just calling:
+#or set path by just calling (this will use the name)
 Set-YaCMLogFileName
-
 Write-YaCMLogEntry -Message 'this is a new message' -Severity 1 -Passthru
 
 

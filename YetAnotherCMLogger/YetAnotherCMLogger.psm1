@@ -179,7 +179,7 @@ Function Get-YaCMLogFileName{
     Return $Global:LogFilePath
 }
 
-Function Write-YaCMLogEntry{
+Function Write-YaCMLogEntry2{
     <#
     .SYNOPSIS
         Creates a log file
@@ -295,8 +295,14 @@ Function Write-YaCMLogEntry{
         $LineFormat = $Message, $LogTimePlusBias, $LogDate, $ScriptSource, $([Security.Principal.WindowsIdentity]::GetCurrent().Name),$Severity,$PID,$ScriptSource
         $LogFormat = $Line -f $LineFormat
 
+        #when using pipeline, verbose mode output is not a string; the output needs to be encoded into utf8 then decoded into a string
+        #eg. Get-Childitem $_ -Verbose 4>&1 | Write-YaCMLogEntry -Passthru
+        $enc = [System.Text.Encoding]::UTF8
+        $LogFormatEncoded = $enc.GetBytes($LogFormat)
+        $LogFormatDecoded = [System.Text.Encoding]::UTF8.GetString($LogFormatEncoded)
+
         try {
-            Out-File -InputObject $LogFormat -Append -NoClobber -Encoding Default -FilePath $OutputLogFile -ErrorAction Stop
+            $LogFormatDecoded | Out-File -Append -NoClobber -Encoding UTF8 -FilePath $OutputLogFile -ErrorAction Stop
         }
         catch {
             Write-Error ("[{0}] [{1}] :: Unable to append log entry to [{2}], error: {3}" -f $LogTimePlusBias,$ScriptSource,$OutputLogFile,$_.Exception.ErrorMessage)
