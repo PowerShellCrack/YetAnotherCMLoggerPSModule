@@ -179,7 +179,7 @@ Function Get-YaCMLogFileName{
     Return $Global:LogFilePath
 }
 
-Function Write-YaCMLogEntry2{
+Function Write-YaCMLogEntry{
     <#
     .SYNOPSIS
         Creates a log file

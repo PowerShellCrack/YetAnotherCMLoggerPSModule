@@ -1,5 +1,9 @@
 # Change log for YetAnotherCMLogger module
 
+## 1.0.0.3 June 08, 2022
+
+- Changed Write-YaCMLogEntry2 to Write-YaCMLogEntry; accidental change during testing. 
+
 ## 1.0.0.2 June 07, 2022
 
 - Added File name value for Set-YaCMLogFileName; useful when Intune generates a random caller file name.
